@@ -59,40 +59,25 @@ URL: GET /products/123/status?authToken=Abc123def456gh78&recalculate=true&owner=
 ```
 
 #### Тест кейс 1.2: Запрос только с обязательными параметрами
+
 ```commandline
 URL: GET /products/123/status?authToken=Abc123def456gh78
 Ожидаемый результат: HTTP 200, корректный JSON с productStatus
 ```
 
-#### Тест кейс 1.3: Все комбинации recalculate
+### Тест кейс 1.3: Попарное тестирование (recalculate + owner, recalculate + region, owner + region)
+| ID   | recalculate | owner         | region         | Ожидаемый результат |
+|------|------------|---------------|----------------|-------------------|
+| TC1  | true       | Создатель     | Северо-Запад   | HTTP 200, {"productStatus": 0 или 1} |
+| TC2  | true       | Пользователь  | Сибирь         | HTTP 200, {"productStatus": 0 или 1} |
+| TC3  | true       | null          | Поволжье       | HTTP 200, {"productStatus": 0 или 1} |
+| TC4  | false      | Создатель     | Сибирь         | HTTP 200, {"productStatus": 0 или 1} |
+| TC5  | false      | Пользователь  | Поволжье       | HTTP 200, {"productStatus": 0 или 1} |
+| TC6  | false      | null          | Северо-Запад   | HTTP 200, {"productStatus": 0 или 1} |
+| TC7  | null       | Создатель     | Поволжье       | HTTP 200, {"productStatus": 0 или 1} |
+| TC8  | null       | Пользователь  | Северо-Запад   | HTTP 200, {"productStatus": 0 или 1} |
+| TC9  | null       | null          | Сибирь         | HTTP 200, {"productStatus": 0 или 1} |
 
-```commandline
-URL варианты:
-/products/123/status?authToken=...&recalculate=true
-/products/123/status?authToken=...&recalculate=false
-/products/123/status?authToken=...&recalculate=null
-Ожидаемый результат: HTTP 200
-```
-
-#### Тест кейс 1.4: Все варианты owner
-
-```commandline
-URL варианты:
-/products/123/status?authToken=...&owner=Создатель
-/products/123/status?authToken=...&owner=Пользователь
-/products/123/status?authToken=...&owner=null
-Ожидаемый результат: HTTP 200
-```
-
-#### Тест кейс 1.5: Все варианты region
-
-```commandline
-URL варианты:
-/products/123/status?authToken=...&region=Северо-Запад
-/products/123/status?authToken=...&region=Сибирь
-/products/123/status?authToken=...&region=Поволжье
-Ожидаемый результат: HTTP 200
-```
 
 ### Группа 2: Ошибки аутентификации (HTTP 401)
 
@@ -129,6 +114,13 @@ URL: GET /products/123/status?authToken=invalid!@#chars
 ```commandline
 URL: GET /products/123/status?authToken=
 Ожидаемый результат: HTTP 401
+```
+
+#### Тест кейс 2.6: Валидный токен, но без прав доступа
+
+```commandline
+URL: GET /products/123/status?authToken=ValidTokenWithoutAccess
+Ожидаемый результат: HTTP 401 или HTTP 403, доступ запрещен
 ```
 
 ### Группа 3: Ошибки "Продукт не найден" (HTTP 404)
